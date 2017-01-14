@@ -1,17 +1,16 @@
-/**
+package ie.gmit.sw; /**
  * Created by AndrewIrwin on 01/01/2017.
  */
-
-import com.sun.xml.internal.bind.v2.TODO;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.UUID;
+
 
 public class Server {
     public static void main(String[] args) throws Exception {
+        System.out.println("ie.gmit.sw.Server Started");
         // Create a new socket connection
         ServerSocket m_ServerSocket = new ServerSocket(7777, 10);
         int id = 0;
@@ -19,6 +18,8 @@ public class Server {
         while (true) {
             // accept incoming client connections
             Socket clientSocket = m_ServerSocket.accept();
+
+            System.out.println("ie.gmit.sw.Server Waiting for incoming connections");
 
             //take the incoming client connection and pass it onto a new thread to be handled.
             // in this way may client connections can be handled at once, making the server multi threaded.
@@ -42,7 +43,7 @@ class ClientServiceThread extends Thread {
     FileInputStream fis;
     BufferedInputStream bis;
 
-    Boolean clientConnected = true;
+
 
     // constructor gets called above in EchoServer inner class and is passed incoming client socket connection information.
     // as well as client id.
@@ -88,7 +89,7 @@ class ClientServiceThread extends Thread {
             in = new ObjectInputStream(clientSocket.getInputStream());
 
             // print out information of the accpeted client connection
-            System.out.println("Accepted Client : ID - " + clientID + " : Address - "
+            System.out.println("Accepted ie.gmit.sw.Client : ID - " + clientID + " : Address - "
                     + clientSocket.getInetAddress().getHostName());
 
 
@@ -97,7 +98,7 @@ class ClientServiceThread extends Thread {
                 try {
 
 
-                    //if (clientConnected)
+
                     mainMenu();
 
 
@@ -105,13 +106,11 @@ class ClientServiceThread extends Thread {
                     System.err.println("Data received in unknown format");
                 }
 
-                //if (clientResponse.equalsIgnoreCase("4"))
-                    //clientConnected = false;
 
             } while (!clientResponse.equalsIgnoreCase("4"));
 
 
-            System.out.println("Ending Client : ID - " + clientID + " : Address - "
+            System.out.println("Ending ie.gmit.sw.Client : ID - " + clientID + " : Address - "
                     + clientSocket.getInetAddress().getHostName());
 
 
@@ -134,7 +133,7 @@ class ClientServiceThread extends Thread {
 
         if (clientResponse.contains("2")) {
 
-            System.out.println("Server Option 2");
+            System.out.println("ie.gmit.sw.Server Option 2");
             out.writeObject(listAllFiles());
 
 
@@ -142,8 +141,7 @@ class ClientServiceThread extends Thread {
 
         } else if (clientResponse.contains("3")) {
 
-            System.out.println("Server Option 3");
-            //sendMessage(listAllFiles());
+            System.out.println("ie.gmit.sw.Server Option 3");
 
             downloadFile();
 
@@ -152,8 +150,8 @@ class ClientServiceThread extends Thread {
         }
         else if (clientResponse.contains("4")){
             // disconnect
-            System.out.println("Server Option 4");
-            sendMessage("Server Option 2 selected");
+            System.out.println("ie.gmit.sw.Server Option 4");
+            sendMessage("ie.gmit.sw.Server Option 4 Selected, closing connection");
             closeClientConnection();
         }
 
@@ -197,7 +195,7 @@ class ClientServiceThread extends Thread {
         String filename = availableFiles.get(clientSelection);
 
         File file = new File(filename);
-
+        System.out.println("DownloadFile: " + file.getName());
 
 
 
@@ -215,8 +213,7 @@ class ClientServiceThread extends Thread {
         while((theByte = bis.read()) != -1)
             bos.write(theByte);
 
-        //bos.flush();
-        //dos.flush();
+
 
         dos.close();
         bis.close();
@@ -233,7 +230,7 @@ class ClientServiceThread extends Thread {
             out.close();
             in.close();
             clientSocket.close();
-            System.out.println("Closed Connection Client : ID - " + clientID + " : Address - "
+            System.out.println("Closed Connection ie.gmit.sw.Client : ID - " + clientID + " : Address - "
                     + clientSocket.getInetAddress().getHostName());
         }
         catch (IOException ioException){
