@@ -13,6 +13,12 @@ public class Client {
     Socket requestSocket;
     ObjectOutputStream out;
     ObjectInputStream in;
+    BufferedInputStream bis;
+    DataInputStream dis;
+    FileOutputStream fos;
+    BufferedOutputStream bos;
+
+
     String message = "";
     String userInput;
     String ipaddress = "192.168.1.101";
@@ -22,7 +28,7 @@ public class Client {
     Client() {
     }
 
-    void run() throws IOException {
+    void run() throws IOException, ClassNotFoundException {
 
         // IP ADDRESS
         //   192.168.1.103
@@ -51,7 +57,7 @@ public class Client {
     }
 
 
-    public void menu() throws IOException {
+    public void menu() throws IOException, ClassNotFoundException {
         do{
         stdin = new Scanner(System.in);
         //try {
@@ -60,6 +66,7 @@ public class Client {
         System.out.println("2: List Files ");
         System.out.println("3: Download File ");
         System.out.println("4: Quit ");
+            System.out.println("\nType Option [1-4]");
 
 
 
@@ -72,23 +79,9 @@ public class Client {
 
             } else {
 
-                try {
-
-                    // create a socket bewtween client and ip address of the server on port 2004
-                    requestSocket = new Socket(ipaddress, 7777);
-                    System.out.println("Connected to " + ipaddress + " in port 7777");
-                    //2. get Input and Output streams
-                    out = new ObjectOutputStream(requestSocket.getOutputStream());
-                    out.flush();
-                    in = new ObjectInputStream(requestSocket.getInputStream());
-                    serverConnected = true;
-
-                    //serverConnectedMenu();
+                connectToServer(false);
 
 
-                } catch (IOException io) {
-                    io.printStackTrace();
-                }
             }
 
 
@@ -107,25 +100,9 @@ public class Client {
 
             sendMessage(userInput);
 
+            readFileList();
 
 
-            try {
-
-
-                //ObjectInputStream in = new ObjectInputStream(requestSocket.getInputStream());
-                //ArrayList<String> clientFileList = (ArrayList<String>) in.readObject(); //Deserialise
-                Object object = in.readObject();
-                ArrayList<String> clientFileList = (ArrayList<String>) object;
-
-                System.out.println("ClientFileList: " + clientFileList.toString());
-            }
-            catch (IOException e){
-                e.printStackTrace();
-                System.out.println("FAiled");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                System.out.println("Class Not found option 2 io");
-            }
 
 
             //serverConnectedMenu();
@@ -141,52 +118,24 @@ public class Client {
             }
 
             System.out.println("Client Option 3 Selected.");
+           // System.out.println("Select file number to download: ");
+           // readFileList();
+            //userInput = stdin.next();
 
             sendMessage(userInput);
 
-           /* FileOutputStream fIn = new FileOutputStream("testing");
-            BufferedInputStream inAout = new BufferedInputStream(requestSocket.getInputStream());
-            byte fileContent[] = new byte[1000000];
-            inAout.read(fileContent);
-            fIn.write(fileContent);
-            System.out.println("file Downloaded");
-            System.out.println("fileContent:" + fileContent);
-            */
-
-          /*  byte[] mybytearray = new byte[1024];
-            //InputStream is = sock.getInputStream();
-            FileOutputStream fos = new FileOutputStream("testing2.txt");
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            int bytesRead = in.read(mybytearray, 0, mybytearray.length);
-            bos.write(mybytearray, 0, bytesRead);
-            System.out.println("file transfer complete");
-            */
-
-            try {
+            String serverMessage =  (String) in.readObject();
+            System.out.println(serverMessage);
+            userInput = stdin.next();
 
 
-                BufferedInputStream bis = new BufferedInputStream(requestSocket.getInputStream());
-                DataInputStream dis = new DataInputStream(bis);
 
-                long fileLength = dis.readLong();
-                String fileName = dis.readUTF();
 
-                File file = new File("testing3.txt");
+            sendMessage(userInput);
 
-                FileOutputStream fos = new FileOutputStream(file);
-                BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-                for (int j = 0; j < fileLength; j++)
-                    bos.write(bis.read());
-
-                bos.close();
-                dis.close();
-
-                System.out.println("file transfer complete");
-            }
-            catch (IOException io){
-                io.printStackTrace();
-            }
+            readDownloadFile();
+            closeConnection();
+            connectToServer(true);
 
 
         }
@@ -246,11 +195,96 @@ public class Client {
         System.out.println("method Client Option 4 Selected");
         //4: Closing connection
         try {
+
+
+
             in.close();
             out.close();
             requestSocket.close();
         } catch (IOException ioException) {
             ioException.printStackTrace();
+        }
+    }
+
+
+    public void connectToServer(boolean reConnection){
+        try {
+
+            // create a socket bewtween client and ip address of the server on port 2004
+            requestSocket = new Socket(ipaddress, 7777);
+            if (!reConnection)
+            System.out.println("Connected to " + ipaddress + " in port 7777");
+            //2. get Input and Output streams
+            out = new ObjectOutputStream(requestSocket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(requestSocket.getInputStream());
+            serverConnected = true;
+
+            //serverConnectedMenu();
+
+
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+    }
+
+
+    public void readFileList(){
+        try {
+
+
+            //ObjectInputStream in = new ObjectInputStream(requestSocket.getInputStream());
+            //ArrayList<String> clientFileList = (ArrayList<String>) in.readObject(); //Deserialise
+            Object object = in.readObject();
+            ArrayList<String> clientFileList = (ArrayList<String>) object;
+
+            System.out.println("ClientFileList: " + clientFileList.toString());
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            System.out.println("FAiled");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Class Not found option 2 io");
+        }
+    }
+
+
+    public void readDownloadFile(){
+
+
+
+
+
+        try {
+
+
+            bis = new BufferedInputStream(requestSocket.getInputStream());
+            dis = new DataInputStream(bis);
+
+            long fileLength = dis.readLong();
+            String fileName = dis.readUTF();
+
+            //// TODO: 14/01/2017 remove below when finished testing
+            fileName += "1";
+
+            System.out.println("fileName: " + fileName);
+
+            File file = new File(fileName);
+
+            fos = new FileOutputStream(file);
+            bos = new BufferedOutputStream(fos);
+
+            for (int j = 0; j < fileLength; j++)
+                bos.write(bis.read());
+
+
+            bos.close();
+            dis.close();
+            System.out.println("file transfer complete");
+        }
+        catch (IOException io){
+            io.printStackTrace();
         }
     }
 
@@ -269,7 +303,7 @@ public class Client {
 
     // when the main method is called, create a new instance of the Client class.
     // and call its run method. which  is located above,
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws IOException, ClassNotFoundException {
         Client client = new Client();
         client.run();
     }

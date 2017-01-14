@@ -37,6 +37,11 @@ class ClientServiceThread extends Thread {
     int clientID = -1;
     ObjectOutputStream out;
     ObjectInputStream in;
+    BufferedOutputStream bos;
+    DataOutputStream dos;
+    FileInputStream fis;
+    BufferedInputStream bis;
+
     Boolean clientConnected = true;
 
     // constructor gets called above in EchoServer inner class and is passed incoming client socket connection information.
@@ -75,6 +80,9 @@ class ClientServiceThread extends Thread {
         try {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             out.flush();
+
+            bos = new BufferedOutputStream(clientSocket.getOutputStream());
+            dos = new DataOutputStream(bos);
 
             // create an input stream with connected client to accept incoming commuincations/messages from client
             in = new ObjectInputStream(clientSocket.getInputStream());
@@ -137,46 +145,7 @@ class ClientServiceThread extends Thread {
             System.out.println("Server Option 3");
             //sendMessage(listAllFiles());
 
-            File file = new File("test.txt");
-
-
-            /*FileInputStream fIn = new FileInputStream(file);
-            ObjectOutputStream out2 = new ObjectOutputStream(clientSocket.getOutputStream());
-            byte fileContent[] = new byte[(int) file.length()];
-            fIn.read(fileContent);
-            for (byte b : fileContent) {
-                out2.write(b);
-            }
-            */
-
-           /* byte[] mybytearray = new byte[(int) file.length()];
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-            bis.read(mybytearray, 0, mybytearray.length);
-
-            out.write(mybytearray, 0, mybytearray.length);
-            out.flush();
-            */
-
-            BufferedOutputStream bos = new BufferedOutputStream(clientSocket.getOutputStream());
-            DataOutputStream dos = new DataOutputStream(bos);
-
-            //File file = new File("");
-
-            long length = file.length();
-            dos.writeLong(length);
-
-            String name = file.getName();
-            dos.writeUTF(name);
-
-            FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-
-            int theByte = 0;
-            while((theByte = bis.read()) != -1)
-                bos.write(theByte);
-
-            dos.close();
-            bis.close();
+            downloadFile();
 
 
 
@@ -210,35 +179,47 @@ class ClientServiceThread extends Thread {
         }
 
 
-
-
-
-
-        /*File curDir = new File(".");
-        File[] filesList = curDir.listFiles();
-        ArrayList<String> fileNames = new ArrayList<String>();
-        for(File f : filesList){
-            //if(f.isDirectory())
-            //  System.out.println("DirectoryName: " + f.getName());this is kamakazie stuff
-            if(f.isFile()){
-                System.out.println("FileName: " + f.getName());
-
-
-                fileNames.add(f.getName());
-                System.out.println("Filenames: " + fileNames);
-            }
-        }
-
-
-       */
         return  fileNames;
     }
 
 
 
-    public void downloadFile() throws IOException {
+    public void downloadFile() throws IOException, ClassNotFoundException {
+
+        sendMessage("Enter file number to download");
+         clientResponse =  (String) in.readObject();
+        int clientSelection = Integer.parseInt(clientResponse);
+
+        ArrayList<String> availableFiles = new ArrayList<String>();
+        availableFiles = listAllFiles();
 
 
+        String filename = availableFiles.get(clientSelection);
+
+        File file = new File(filename);
+
+
+
+
+
+        long length = file.length();
+        dos.writeLong(length);
+
+        String name = file.getName();
+        dos.writeUTF(name);
+
+         fis = new FileInputStream(file);
+         bis = new BufferedInputStream(fis);
+
+        int theByte = 0;
+        while((theByte = bis.read()) != -1)
+            bos.write(theByte);
+
+        //bos.flush();
+        //dos.flush();
+
+        dos.close();
+        bis.close();
 
     }
 
@@ -247,6 +228,8 @@ class ClientServiceThread extends Thread {
 
     public void closeClientConnection(){
         try {
+
+
             out.close();
             in.close();
             clientSocket.close();
