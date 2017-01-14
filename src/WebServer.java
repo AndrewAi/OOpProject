@@ -176,6 +176,11 @@ public class WebServer {
         return  fileNames;
     }
 
+    public static void sendDownloadFile(){
+
+
+    }
+
 
 
 }//End of class WebServer
