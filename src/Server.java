@@ -149,12 +149,35 @@ class ClientServiceThread extends Thread {
             }
             */
 
-            byte[] mybytearray = new byte[(int) file.length()];
+           /* byte[] mybytearray = new byte[(int) file.length()];
             BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
             bis.read(mybytearray, 0, mybytearray.length);
 
             out.write(mybytearray, 0, mybytearray.length);
             out.flush();
+            */
+
+            BufferedOutputStream bos = new BufferedOutputStream(clientSocket.getOutputStream());
+            DataOutputStream dos = new DataOutputStream(bos);
+
+            //File file = new File("");
+
+            long length = file.length();
+            dos.writeLong(length);
+
+            String name = file.getName();
+            dos.writeUTF(name);
+
+            FileInputStream fis = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+
+            int theByte = 0;
+            while((theByte = bis.read()) != -1)
+                bos.write(theByte);
+
+            dos.close();
+            bis.close();
+
 
 
         }

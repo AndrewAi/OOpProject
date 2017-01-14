@@ -153,13 +153,40 @@ public class Client {
             System.out.println("fileContent:" + fileContent);
             */
 
-            byte[] mybytearray = new byte[1024];
+          /*  byte[] mybytearray = new byte[1024];
             //InputStream is = sock.getInputStream();
             FileOutputStream fos = new FileOutputStream("testing2.txt");
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             int bytesRead = in.read(mybytearray, 0, mybytearray.length);
             bos.write(mybytearray, 0, bytesRead);
             System.out.println("file transfer complete");
+            */
+
+            try {
+
+
+                BufferedInputStream bis = new BufferedInputStream(requestSocket.getInputStream());
+                DataInputStream dis = new DataInputStream(bis);
+
+                long fileLength = dis.readLong();
+                String fileName = dis.readUTF();
+
+                File file = new File("testing3.txt");
+
+                FileOutputStream fos = new FileOutputStream(file);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+                for (int j = 0; j < fileLength; j++)
+                    bos.write(bis.read());
+
+                bos.close();
+                dis.close();
+
+                System.out.println("file transfer complete");
+            }
+            catch (IOException io){
+                io.printStackTrace();
+            }
 
 
         }
