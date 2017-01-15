@@ -78,6 +78,7 @@ public class Client {
 
                 System.out.println("Option 2 Selected, Listing Files");
 
+
                 sendMessage(userInput);
 
                 readFileList();
@@ -108,7 +109,6 @@ public class Client {
 
 
             } else if (userInput.equalsIgnoreCase("4")) {
-                System.out.println("else if option 4 selected");
                 closeConnection();
             }
 
@@ -217,6 +217,8 @@ public class Client {
             long fileLength = dis.readLong();
             String fileName = dis.readUTF();
 
+            // used for testing file download.
+            fileName += 1;
 
             System.out.println("fileName: " + fileName);
 

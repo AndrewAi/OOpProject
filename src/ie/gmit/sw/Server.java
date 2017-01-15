@@ -187,6 +187,7 @@ class ClientServiceThread extends Thread {
         sendMessage("Enter file number to download");
          clientResponse =  (String) in.readObject();
         int clientSelection = Integer.parseInt(clientResponse);
+        clientSelection -= 1;
 
         ArrayList<String> availableFiles = new ArrayList<String>();
         availableFiles = listAllFiles();
