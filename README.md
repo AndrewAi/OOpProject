@@ -1,8 +1,8 @@
 # OOP Project
 
-3rd Year Objected orientated programming project.
+3rd Year object orientated programming project.
 
-##Project Brief:
+## Project Brief:
 You are required to implement a multi-threaded file server and logging application that allows
 a client application to download files using a set of options presented in a terminal user
 interface.
@@ -21,11 +21,11 @@ Once the application starts the client will be prompted with a menu:
   Enter 4. Quit
   
  
-The is not allowed to enter options 2 or 3 if they are not connected to the server.
+The user is not allowed to enter options 2 or 3 if they are not connected to the server.
 
 ## Code Design Approach:
 
-Id most of the logic on the client side to keep it straight forward and simple as possible.
+I had most of the logic on the client side to keep it straight forward and simple as possible.
 When the program starts the user is entered into a while loop where they are prompted with menu options.
 the while loop will not finish until the user enters 4 to quit.
 when a user enters an option 1,2,3,4 relevent method will be called and the method in turn will commuincate
